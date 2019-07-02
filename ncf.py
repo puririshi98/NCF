@@ -51,7 +51,9 @@ from logger.autologging import log_hardware, log_args
 
 from fp_optimizers import Fp16Optimizer
 from apex.parallel import DistributedDataParallel as DDP
-
+from apex.fp16_utils import *
+from apex import amp, optimizers
+from apex.multi_tensor_apply import multi_tensor_applier
 
 LOGGER.model = 'ncf'
 
@@ -342,13 +344,19 @@ def main():
         file.write(str(model))
 
     # Add optimizer and loss to graph
-    if args.fp16:
-        fp_optimizer = Fp16Optimizer(model, args.loss_scale)
-        params = fp_optimizer.fp32_params
-    else:
-        params = model.parameters()
-
+#     if args.fp16:
+#         fp_optimizer = Fp16Optimizer(model, args.loss_scale)
+#         params = fp_optimizer.fp32_params
+#     else:
+#         params = model.parameters()
+    params=model.parameters()
     optimizer = FusedAdam(params, lr=args.learning_rate, betas=(args.beta1, args.beta2), eps=args.eps, eps_inside_sqrt=False)
+    
+    model, optimizer = amp.initialize(model, optimizer,
+                                      opt_level=args.opt_level,
+                                      keep_batchnorm_fp32=args.keep_batchnorm_fp32,
+                                      loss_scale=args.loss_scale
+                                      )
     criterion = nn.BCEWithLogitsLoss(reduction='none') # use torch.mean() with dim later to avoid copy to host
     LOGGER.log(key=tags.OPT_LR, value=args.learning_rate)
     LOGGER.log(key=tags.OPT_NAME, value="Adam")
@@ -448,15 +456,18 @@ def main():
                 outputs = model(user, item)
                 loss = traced_criterion(outputs, label).float()
                 loss = torch.mean(loss.view(-1), 0)
-                if args.fp16:
-                    fp_optimizer.backward(loss)
-                else:
-                    loss.backward()
+#                 if args.fp16:
+#                     fp_optimizer.backward(loss)
+#                 else:
+#                     loss.backward()
+                with amp.scale_loss(loss, optimizer) as scaled_loss:
+                    scaled_loss.backward()
 
-            if args.fp16:
-                fp_optimizer.step(optimizer)
-            else:
-                optimizer.step()
+#             if args.fp16:
+#                 fp_optimizer.step(optimizer)
+#             else:
+#                 optimizer.step()
+            optimizer.step()
 
             for p in model.parameters():
                     p.grad = None
