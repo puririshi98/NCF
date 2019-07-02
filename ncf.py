@@ -29,7 +29,7 @@
 # limitations under the License.
 
 import torch.jit
-from apex.optimizers import FusedAdam
+import torch.optim.adam as FusedAdam
 import logging
 import os
 import sys
