@@ -57,7 +57,7 @@ rm -f log
 
 if [ ! -f ${ZIP_PATH} ]; then
     echo 'Dataset not found, downloading...'
-    ./download_dataset.sh ${DATASET_NAME} ${RAW_DATADIR}
+    bash download_dataset.sh ${DATASET_NAME} ${RAW_DATADIR}
 fi
 
 if [ ! -f ${RATINGS_PATH} ]; then
