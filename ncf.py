@@ -350,7 +350,7 @@ def main():
 #     else:
 #         params = model.parameters()
     params=model.parameters()
-    optimizer = FusedAdam(params, lr=args.learning_rate, betas=(args.beta1, args.beta2), eps=args.eps, eps_inside_sqrt=False)
+    optimizer = FusedAdam(params, lr=args.learning_rate, betas=(args.beta1, args.beta2), eps=args.eps)
     
     model, optimizer = amp.initialize(model, optimizer,
                                       opt_level=args.opt_level,
