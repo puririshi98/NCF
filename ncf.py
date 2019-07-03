@@ -29,7 +29,7 @@
 # limitations under the License.
 
 import torch.jit
-import torch.optim.Adam as FusedAdam
+from torch.optim import Adam as FusedAdam
 import logging
 import os
 import sys
