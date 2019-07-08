@@ -334,7 +334,7 @@ def main():
                   dropout=args.dropout)
 
     if args.fp16:
-        model = model
+        model = model.cuda()
 
     print(model)
     print("{} parameters".format(utils.count_parameters(model)))
