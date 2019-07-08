@@ -334,7 +334,7 @@ def main():
                   dropout=args.dropout)
 
     if args.fp16:
-        model = model.half()
+        model = model
 
     print(model)
     print("{} parameters".format(utils.count_parameters(model)))
