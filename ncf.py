@@ -277,7 +277,7 @@ def main():
     train_label = torch.cat((train_label,neg_label))
     del neg_label
     if args.fp16:
-        train_label = train_label.half()
+        train_label = train_label.cuda()
 
     # produce validation negative sample on GPU
     all_test_users = test_ratings.shape[0]
