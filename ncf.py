@@ -353,7 +353,7 @@ def main():
     optimizer = FusedAdam(params, lr=args.learning_rate, betas=(args.beta1, args.beta2), eps=args.eps)
     
     model, optimizer = amp.initialize(model, optimizer,
-                                      opt_level='O2',
+                                      opt_level='O1',
                                       keep_batchnorm_fp32=None,
                                       loss_scale=None
                                       )
