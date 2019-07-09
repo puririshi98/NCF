@@ -355,7 +355,7 @@ def main():
     model, optimizer = amp.initialize(model, optimizer,
                                       opt_level='O2',
                                       keep_batchnorm_fp32=None,
-                                      loss_scale=None
+                                      loss_scale=8192*8
                                       )
     criterion = nn.BCEWithLogitsLoss(reduction='none') # use torch.mean() with dim later to avoid copy to host
     LOGGER.log(key=tags.OPT_LR, value=args.learning_rate)
@@ -460,6 +460,7 @@ def main():
 #                     fp_optimizer.backward(loss)
 #                 else:
 #                     loss.backward()
+             
                 with amp.scale_loss(loss, optimizer) as scaled_loss:
                     scaled_loss.backward()
 
