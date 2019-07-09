@@ -355,7 +355,7 @@ def main():
     model, optimizer = amp.initialize(model, optimizer,
                                       opt_level='O2',
                                       keep_batchnorm_fp32=None,
-                                      loss_scale=args.loss_scale
+                                      loss_scale=None
                                       )
     criterion = nn.BCEWithLogitsLoss(reduction='none') # use torch.mean() with dim later to avoid copy to host
     LOGGER.log(key=tags.OPT_LR, value=args.learning_rate)
