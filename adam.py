@@ -1,4 +1,4 @@
-import math
+rt math
 import torch
 from .optimizer import Optimizer
 import stochround
@@ -102,6 +102,10 @@ class Adam(Optimizer):
 
                 p.data.addcdiv_(-step_size, exp_avg, denom)
 
+            if exp_avg.type()!='torch.FloatTensor':
+                raise ValueError('exp_avg is not float')
+            if exp_avg_sq.type()!='torch.FloatTensor':
+                raise ValueError('exp_avg_sq is not float')
 
 
             for param in group['params']:
