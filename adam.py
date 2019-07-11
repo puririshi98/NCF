@@ -84,6 +84,8 @@ class Adam(Optimizer):
 
                 state['step'] += 1
 
+
+
                 if group['weight_decay'] != 0:
                     grad.add_(group['weight_decay'], p.data)
 
@@ -140,17 +142,28 @@ class Adam(Optimizer):
 
                 # if state['step']>5:
                 #     print(torch.norm(exp_avg))
-                if torch.isnan(exp_avg_sq).any():
-                    raise ValueError('exp_avg_sq became nan before rounding on step: '+str(state['step']))
-                if torch.isnan(exp_avg).any():
-                    raise ValueError('exp_avg became nan before rounding on step: '+str(state['step']))
+                # if ((1/denom)>65536).any():
+                #     print(state['step'])
+                #     print((1/denom)[(1/denom)>65536])
+                #     raise ValueError("1/denom exploded")
+#                 if (exp_avg_sq<0.0).any():
+#                     raise ValueError("exp_avg_sq has a negative value after rounding")
+#                 if torch.isnan(exp_avg_sq).any():
+#                     raise ValueError('exp_avg_sq became nan before rounding on step: '+str(state['step']))
+#                 if torch.isnan(exp_avg).any():
+#                     raise ValueError('exp_avg became nan before rounding on step: '+str(state['step']))
                      
-                if exp_avg.type()!='torch.cuda.FloatTensor':
-                    raise ValueError('exp_avg is not float')
-                if exp_avg_sq.type()!='torch.cuda.FloatTensor':
-                    raise ValueError('exp_avg_sq is not float')
-
-
+#                 if exp_avg.type()!='torch.cuda.FloatTensor':
+#                     raise ValueError('exp_avg is not float')
+#                 if exp_avg_sq.type()!='torch.cuda.FloatTensor':
+#                     raise ValueError('exp_avg_sq is not float')
+#                 if (exp_avg>65536).any():
+#                     print(exp_avg[exp_avg>65536])
+#                     raise ValueError("vals in exp_avg are too big")
+#                 if (exp_avg_sq>65536).any():
+#                     print(exp_avg_sq[exp_avg_sq>65536])
+#                     raise ValueError("vals in exp_avg_sq are too big")
+                
             for param in group['params']:
                 stochround.stochastic_tensor_round(param, param)
                 param_state=self.state[param]
@@ -159,14 +172,22 @@ class Adam(Optimizer):
                     if group['amsgrad']:
                         max_exp_avg_sq = param_state['max_exp_avg_sq']
                         stochround.stochastic_tensor_round(max_exp_avg_sq,max_exp_avg_sq)
-                    #stochround.stochastic_tensor_round(exp_avg,exp_avg)
-                    #stochround.stochastic_tensor_round(exp_avg_sq,exp_avg_sq)
-            for param in group['params']:
-                state=self.state[param]
-                exp_avg, exp_avg_sq = state['exp_avg'], state['exp_avg_sq']
-                if torch.isnan(exp_avg_sq).any():
-                    raise ValueError('exp_avg_sq became nan after rounding on step: '+str(state['step']))
-                if torch.isnan(exp_avg).any():
-                    raise ValueError('exp_avg became nan after rounding on step: '+str(state['step']))
+                    
+                    exp_avg=exp_avg/10000
+                    exp_avg_sq=exp_avg_sq/10000
+                    stochround.stochastic_tensor_round(exp_avg,exp_avg)
+                    stochround.stochastic_tensor_round(exp_avg_sq,exp_avg_sq)
+                    exp_avg=exp_avg*10000
+                    exp_avg_sq=exp_avg_sq*10000
+#             for param in group['params']:
+#                 state=self.state[param]
+#                 exp_avg, exp_avg_sq = state['exp_avg'], state['exp_avg_sq']
+#                 if (exp_avg_sq<0).any():
+#                     raise ValueError("exp_avg_sq has a negative value after rounding")
+#                 if torch.isnan(exp_avg_sq).any():
+#                     raise ValueError('exp_avg_sq became nan after rounding on step: '+str(state['step']))
+#                 if torch.isnan(exp_avg).any():
+#                     raise ValueError('exp_avg became nan after rounding on step: '+str(state['step']))
              
         return loss
+
