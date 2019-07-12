@@ -333,8 +333,8 @@ def main():
                   mlp_layer_regs=[0. for i in args.layers],
                   dropout=args.dropout)
 
-    if args.fp16:
-        model = model.cuda()
+    
+    model = model.cuda()
 
     print(model)
     print("{} parameters".format(utils.count_parameters(model)))
