@@ -198,7 +198,7 @@ class Adam(Optimizer):
                         #     print()
                         #     raise ValueError('scale zeros exp_avg before round on iter'+str(param_state['step']))
                         stochround.stochastic_tensor_round(exp_avg,exp_avg)
-                        stochround.stochastic_tensor_round(exp_avg_sq,exp_avg_sq)
+                        #stochround.stochastic_tensor_round(exp_avg_sq,exp_avg_sq)
                         # if (exp_avg==0.0).any():
                         #     raise ValueError('zeros exp_avg_sq after round')
                         # if (exp_avg==0.0).all()  and param_state['step']>100:
