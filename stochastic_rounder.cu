@@ -44,7 +44,7 @@ __device__ __forceinline__ scalar_t natalia_magic(float x,curandStatePhilox4_32_
 	float randy=curand_uniform(&state);
 	float val=x+randy*delta;
 	// To guarantee representability, route through a guaranteed FP16 cast.
-	return maybe_upcast<scalar_t>(__float2half_rd(val));
+	return maybe_upcast<scalar_t>(__float2half_rz(val));
 }
 
 template <typename scalar_t>
