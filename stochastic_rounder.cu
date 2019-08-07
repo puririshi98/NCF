@@ -46,15 +46,17 @@ __device__ __forceinline__ scalar_t natalia_magic(float x,curandStatePhilox4_32_
 	float delta=get_delta_fp16(x);
 	
 	float randy=curand_uniform(&state);
+	float val;
 	if(x<0.0){
-	    float val=x-randy*delta;
+	    val=x-randy*delta;
 	}
 	else{
-	    float val=x+randy*delta;
+	    val=x+randy*delta;
 	}
 	// To guarantee representability, route through a guaranteed FP16 cast.
 	return maybe_upcast<scalar_t>(__float2half_rz(val));
 }
+
 
 template <typename scalar_t>
 __global__ void stochround(float* mtx,scalar_t* new_mtx, int n, uint64_t seed, uint64_t offset){
