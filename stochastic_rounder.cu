@@ -20,23 +20,59 @@ static uint64_t offset=0;
 // float holdy2=pow(2.0,-24.0);
 __device__ const float twoten=0.0009765625;
 __device__ const float twominustwentyfour=0.000000059604644775390625;
+__device__ const float twoseven=0.0078125;
+__device__ const float two133=0.0000000000000000000000000000000000000000918354961579912115600575419704879435795832466228193376178712270530013483949005603790283203125;
+
 
 template<typename T>
 __device__ __forceinline__ T maybe_upcast(__half x){ return T(__half2float(x)); }
 template<> __device__ __forceinline__ __half maybe_upcast<__half>(__half x){ return x; }
-
+//this one is for fp16
+// __device__ __forceinline__ float get_delta_fp16(float x){
+// 	int e_actual;
+// 	frexpf(x, &e_actual);
+// 	e_actual-=1;
+// 	// int e_actual=e_stored-127;
+// 	if(e_actual>=-14){
+// 		return twoten*pow(2,e_actual);
+// 	}
+// 	else{
+// 		return twominustwentyfour;
+// 	}
+// }
 __device__ __forceinline__ float get_delta_fp16(float x){
 	int e_actual;
 	frexpf(x, &e_actual);
 	e_actual-=1;
 	// int e_actual=e_stored-127;
-	if(e_actual>=-14){
-		return twoten*pow(2,e_actual);
+	if(e_actual>=-126){
+		return twoseven*pow(2,e_actual);
 	}
 	else{
-		return twominustwentyfour;
+		return two133;
 	}
 }
+//for fp16
+// template <typename scalar_t>
+// __device__ __forceinline__ scalar_t natalia_magic(float x,curandStatePhilox4_32_10_t state){
+//  	if(x==0.0){
+
+//  		return scalar_t(0.0);
+//  	}
+// 	float delta=get_delta_fp16(x);
+	
+// 	float randy=curand_uniform(&state);
+// 	float val;
+// 	if(x<0.0){
+// 	    val=x-randy*delta;
+// 	}
+// 	else{
+// 	    val=x+randy*delta;
+// 	}
+// 	// To guarantee representability, route through a guaranteed FP16 cast.
+// 	return maybe_upcast<scalar_t>(__float2half_rz(val));
+// }
+//bfloat16
 template <typename scalar_t>
 __device__ __forceinline__ scalar_t natalia_magic(float x,curandStatePhilox4_32_10_t state){
  	if(x==0.0){
@@ -54,7 +90,8 @@ __device__ __forceinline__ scalar_t natalia_magic(float x,curandStatePhilox4_32_
 	    val=x+randy*delta;
 	}
 	// To guarantee representability, route through a guaranteed FP16 cast.
-	return maybe_upcast<scalar_t>(__float2half_rz(val));
+	
+	return maybe_upcast<scalar_t>(reinterpret_cast<uint32>(val) & 0x0000FFFF);
 }
 
 
