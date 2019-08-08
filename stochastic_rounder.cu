@@ -91,7 +91,7 @@ __device__ __forceinline__ scalar_t natalia_magic(float x,curandStatePhilox4_32_
 	}
 	// To guarantee representability, route through a guaranteed FP16 cast.
 	
-	return maybe_upcast<scalar_t>(reinterpret_cast<float>(reinterpret_cast<uint32_t>(val) & 0x0000FFFF));
+	return scalar_t(float(uint32_t(float(val)) & 0x0000FFFF));
 }
 
 
@@ -128,9 +128,8 @@ torch::Tensor stochroundfortensor(torch::Tensor mtx,torch::Tensor half_mtx){
 	float sm_max=72.0;
 	float numthreads_per_sm=1024.0;
 	const dim3 blocks(ceil(sm_max*numthreads_per_sm/threads),1,1);
-	AT_DISPATCH_FLOATING_TYPES_AND_HALF(half_mtx.scalar_type(),"stochastic_tensor_round",([&] {stochround<scalar_t><<<blocks, threads>>>(mtx.data<float>(),half_mtx.data<scalar_t>(),n,seed,offset);}));
+	AT_DISPATCH_FLOATING_TYPES(half_mtx.scalar_type(),"stochastic_tensor_round",([&] {stochround<scalar_t><<<blocks, threads>>>(mtx.data<float>(),half_mtx.data<scalar_t>(),n,seed,offset);}));
 	offset = offset + (n + blocks.x*threads - 1)/(blocks.x*threads);
 	// printf("%d \n \n \n \n ",offset);
 	return half_mtx;
 }
-
