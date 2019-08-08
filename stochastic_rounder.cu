@@ -91,7 +91,7 @@ __device__ __forceinline__ scalar_t natalia_magic(float x,curandStatePhilox4_32_
 	}
 	// To guarantee representability, route through a guaranteed FP16 cast.
 	
-	return maybe_upcast<scalar_t>(reinterpret_cast<uint32>(val) & 0x0000FFFF);
+	return maybe_upcast<scalar_t>(reinterpret_cast<uint32_t*>(val) & 0x0000FFFF);
 }
 
 
